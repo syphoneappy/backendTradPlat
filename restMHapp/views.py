@@ -6,7 +6,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-
+from .serializer import OrderDetailsSerializer
+from .models import OrderDetails
 
 
 @api_view(["GET"])
@@ -24,6 +25,24 @@ def create_admin(request):
             status=status.HTTP_200_OK,
         )
     return Response(searializer.errors, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(["POST", "GET"])
+@permission_classes([IsAuthenticated])
+def create_order(request):
+    if request.method == "POST":
+        serializer = OrderDetailsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"success": "the data has been successfully stored"},
+                status=status.HTTP_200_OK,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == "GET":
+        user_object = OrderDetails.objects.filter(user=request.user)
+        serializer = OrderDetailsSerializer(user_object, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["POST", "GET"])

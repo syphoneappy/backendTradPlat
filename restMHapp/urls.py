@@ -8,4 +8,5 @@ urlpatterns = [
     path("login/", obtain_auth_token, name="login_user"),
     path("logout/", views.logout),
     path("validate_token/", views.validate_token),
+    path("order/", views.create_order),
 ]
